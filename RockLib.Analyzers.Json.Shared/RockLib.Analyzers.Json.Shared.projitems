@@ -10,28 +10,32 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\..\RockLib.Analyzers.Json.Spike\RockLib.Analyzers.Json.Shared\ArrayItemSyntax.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ArraySyntax.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)CloseBraceSyntax.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)CloseBracketSyntax.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ColonSyntax.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)CommaSyntax.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Syntax\ArraySyntax.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Syntax\CloseBraceSyntax.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Syntax\CloseBracketSyntax.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Syntax\ColonSyntax.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Syntax\CommaSyntax.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Json.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)MemberSyntax.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ObjectSyntax.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)StringSyntax.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)TriviaListSyntax.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)FalseSyntax.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)JsonSyntaxNode.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)NullSyntax.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)NumberSyntax.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)OpenBraceSyntax.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)OpenBracketSyntax.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)TriviaSyntaxNode.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)TrueSyntax.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)MultiLineCommentTriviaSyntax.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)SinglelineCommentTriviaSyntax.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)VerbatimSyntaxNode.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)WhitespaceTriviaSyntax.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ContainerSyntaxNode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Syntax\MemberSyntax.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Syntax\ObjectSyntax.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Syntax\StringSyntax.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Syntax\TriviaListSyntax.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Syntax\FalseSyntax.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Syntax\JsonSyntaxNode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Syntax\NullSyntax.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Syntax\NumberSyntax.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Syntax\OpenBraceSyntax.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Syntax\OpenBracketSyntax.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Syntax\TriviaSyntaxNode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Syntax\TrueSyntax.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Syntax\MultiLineCommentTriviaSyntax.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Syntax\SinglelineCommentTriviaSyntax.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Syntax\VerbatimSyntaxNode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Syntax\WhitespaceTriviaSyntax.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Syntax\ContainerSyntaxNode.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="$(MSBuildThisFileDirectory)Parsing\" />
+    <Folder Include="$(MSBuildThisFileDirectory)Syntax\" />
   </ItemGroup>
 </Project>
