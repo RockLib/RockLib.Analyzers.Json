@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects Condition="'$(MSBuildVersion)' == '' Or '$(MSBuildVersion)' &lt; '16.0'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>362fba0e-4fa4-47e3-aeef-3233037b051b</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>RockLib.Analyzers.Json</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\..\RockLib.Analyzers.Json.Spike\RockLib.Analyzers.Json.Shared\ArrayItemSyntax.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ArraySyntax.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CloseBraceSyntax.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CloseBracketSyntax.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ColonSyntax.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CommaSyntax.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Json.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MemberSyntax.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ObjectSyntax.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)StringSyntax.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TriviaListSyntax.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)FalseSyntax.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)JsonSyntaxNode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)NullSyntax.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)NumberSyntax.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)OpenBraceSyntax.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)OpenBracketSyntax.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TriviaSyntaxNode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TrueSyntax.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MultiLineCommentTriviaSyntax.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SinglelineCommentTriviaSyntax.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)VerbatimSyntaxNode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)WhitespaceTriviaSyntax.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ContainerSyntaxNode.cs" />
+  </ItemGroup>
+</Project>
