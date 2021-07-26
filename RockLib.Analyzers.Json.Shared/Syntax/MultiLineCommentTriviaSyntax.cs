@@ -1,39 +1,27 @@
 ﻿using System.Collections.Generic;
 
-namespace RockLib.Analyzers
+namespace RockLib.Analyzers.Json
 {
-#if !PUBLIC
-    partial class Json
+    public class MultiLineCommentTriviaSyntax : TriviaSyntaxNode
     {
-#endif
-#if PUBLIC
-        public
-#else
-        internal
-#endif
-        class MultiLineCommentTriviaSyntax : TriviaSyntaxNode
+        public MultiLineCommentTriviaSyntax(IEnumerable<char> rawValue)
+            : base(rawValue)
         {
-            public MultiLineCommentTriviaSyntax(IEnumerable<char> rawValue)
-                : base(rawValue)
-            {
-            }
-
-            public MultiLineCommentTriviaSyntax WithText(string text) =>
-                new MultiLineCommentTriviaSyntax(GetCommentedText(text));
-
-            private static IEnumerable<char> GetCommentedText(string text)
-            {
-                yield return '/';
-                yield return '*';
-
-                foreach (var c in text)
-                    yield return c;
-
-                yield return '*';
-                yield return '/';
-            }
         }
-#if !PUBLIC
+
+        public MultiLineCommentTriviaSyntax WithText(string text) =>
+            new MultiLineCommentTriviaSyntax(GetCommentedText(text));
+
+        private static IEnumerable<char> GetCommentedText(string text)
+        {
+            yield return '/';
+            yield return '*';
+
+            foreach (var c in text)
+                yield return c;
+
+            yield return '*';
+            yield return '/';
+        }
     }
-#endif
 }

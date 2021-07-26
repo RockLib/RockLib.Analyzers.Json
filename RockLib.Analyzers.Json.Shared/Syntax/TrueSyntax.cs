@@ -1,65 +1,63 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
-namespace RockLib.Analyzers
+namespace RockLib.Analyzers.Json
 {
-#if !PUBLIC
-    partial class Json
+    public class TrueSyntax : VerbatimSyntaxNode
     {
-#endif
-#if PUBLIC
-        public
-#else
-        internal
-#endif
-        class TrueSyntax : VerbatimSyntaxNode
+        private static readonly IEnumerable<char> _true = "true".ToCharArray();
+
+        public TrueSyntax(IEnumerable<char> trueToken)
+            : this(trueToken, null, null)
         {
-            private static readonly IEnumerable<char> _true = "true".ToCharArray();
-
-            public TrueSyntax()
-                : this(null, null)
-            {
-            }
-
-            public TrueSyntax(TriviaListSyntax leadingTrivia, TriviaListSyntax trailingTrivia)
-                : base(_true, leadingTrivia, trailingTrivia)
-            {
-            }
-
-            public TrueSyntax WithTriviaFrom(VerbatimSyntaxNode node) =>
-                new TrueSyntax(node.LeadingTrivia, node.TrailingTrivia);
-
-            public TrueSyntax WithLeadingTriviaFrom(VerbatimSyntaxNode node) =>
-                new TrueSyntax(node.LeadingTrivia, TrailingTrivia);
-
-            public TrueSyntax WithTrailingTriviaFrom(VerbatimSyntaxNode node) =>
-                new TrueSyntax(LeadingTrivia, node.TrailingTrivia);
-
-            public TrueSyntax WithLeadingTrivia(TriviaListSyntax leadingTrivia) =>
-                new TrueSyntax(leadingTrivia, TrailingTrivia);
-
-            public TrueSyntax WithTrailingTrivia(TriviaListSyntax trailingTrivia) =>
-                new TrueSyntax(LeadingTrivia, trailingTrivia);
-
-            protected override JsonSyntaxNode Replace(JsonSyntaxNode oldNode, JsonSyntaxNode newNode)
-            {
-                if (LeadingTrivia != null)
-                {
-                    var replacementLeadingTrivia = LeadingTrivia.ReplaceNode(oldNode, newNode);
-                    if (!ReferenceEquals(replacementLeadingTrivia, LeadingTrivia))
-                        return WithLeadingTrivia(replacementLeadingTrivia);
-                }
-
-                if (TrailingTrivia != null)
-                {
-                    var replacementTrailingTrivia = TrailingTrivia.ReplaceNode(oldNode, newNode);
-                    if (!ReferenceEquals(replacementTrailingTrivia, TrailingTrivia))
-                        return WithTrailingTrivia(replacementTrailingTrivia);
-                }
-
-                return this;
-            }
         }
-#if !PUBLIC
+
+        public TrueSyntax(IEnumerable<char> trueToken, TriviaListSyntax leadingTrivia, TriviaListSyntax trailingTrivia)
+            : base(_true, leadingTrivia, trailingTrivia)
+        {
+            if (!trueToken.EqualsSlice(_true))
+                throw new Exception("Invalid value: " + new string(trueToken.ToArray()));
+        }
+
+        public TrueSyntax WithTriviaFrom(VerbatimSyntaxNode node) =>
+            new TrueSyntax(RawValue, node.LeadingTrivia, node.TrailingTrivia);
+
+        public TrueSyntax WithLeadingTriviaFrom(VerbatimSyntaxNode node) =>
+            new TrueSyntax(RawValue, node.LeadingTrivia, TrailingTrivia);
+
+        public TrueSyntax WithTrailingTriviaFrom(VerbatimSyntaxNode node) =>
+            new TrueSyntax(RawValue, LeadingTrivia, node.TrailingTrivia);
+
+        public TrueSyntax WithLeadingTrivia(TriviaListSyntax leadingTrivia) =>
+            new TrueSyntax(RawValue, leadingTrivia, TrailingTrivia);
+
+        public TrueSyntax WithTrailingTrivia(TriviaListSyntax trailingTrivia) =>
+            new TrueSyntax(RawValue, LeadingTrivia, trailingTrivia);
+
+        protected override JsonSyntaxNode WithLeadingTriviaCore(TriviaListSyntax triviaList) =>
+            WithLeadingTrivia(triviaList);
+
+        protected override JsonSyntaxNode WithTrailingTriviaCore(TriviaListSyntax triviaList) =>
+            WithTrailingTrivia(triviaList);
+
+        protected override JsonSyntaxNode ReplaceCore(JsonSyntaxNode oldNode, JsonSyntaxNode newNode)
+        {
+            if (LeadingTrivia != null)
+            {
+                var replacementLeadingTrivia = LeadingTrivia.ReplaceNode(oldNode, newNode);
+                if (!ReferenceEquals(replacementLeadingTrivia, LeadingTrivia))
+                    return WithLeadingTrivia(replacementLeadingTrivia);
+            }
+
+            if (TrailingTrivia != null)
+            {
+                var replacementTrailingTrivia = TrailingTrivia.ReplaceNode(oldNode, newNode);
+                if (!ReferenceEquals(replacementTrailingTrivia, TrailingTrivia))
+                    return WithTrailingTrivia(replacementTrailingTrivia);
+            }
+
+            return this;
+        }
     }
-#endif
 }
