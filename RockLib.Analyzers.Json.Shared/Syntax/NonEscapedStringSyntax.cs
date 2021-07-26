@@ -20,19 +20,26 @@ namespace RockLib.Analyzers.Json
             _stringValue = new Lazy<string>(() =>
             {
                 var charArray = rawValue.ToArray();
-                return new string(charArray, 1, charArray.Length - 2);
+
+                if (charArray.Length < 1 || charArray[0] != '"')
+                    throw new Exception("Missing open quote.");
+
+                if (charArray.Length < 2 || charArray[charArray.Length - 1] != '"')
+                    throw new Exception("Missing close quote.");
+
+                var stringValue = new string(charArray, 1, charArray.Length - 2);
+
+                if (stringValue.Any(IsSpecialCharacter))
+                    throw new Exception("Cannot contain any special characters.");
+
+                return stringValue;
             });
         }
 
         public override string Value => _stringValue.Value;
 
-        public NonEscapedStringSyntax WithValue(string value)
-        {
-            if (value != null && value.Contains('\\'))
-                throw new ArgumentException("Cannot contain any escaped characters.", nameof(value));
-
-            return new NonEscapedStringSyntax(value, LeadingTrivia, TrailingTrivia);
-        }
+        public NonEscapedStringSyntax WithValue(string value) =>
+            new NonEscapedStringSyntax(value, LeadingTrivia, TrailingTrivia);
 
         public NonEscapedStringSyntax WithTriviaFrom(VerbatimSyntaxNode node) =>
             new NonEscapedStringSyntax(RawValue, node.LeadingTrivia, node.TrailingTrivia);
@@ -72,6 +79,24 @@ namespace RockLib.Analyzers.Json
             }
 
             return this;
+        }
+
+        private static bool IsSpecialCharacter(char c)
+        {
+            switch (c)
+            {
+                default:
+                    return false;
+                case '"':
+                case '\\':
+                case '/':
+                case '\b':
+                case '\f':
+                case '\n':
+                case '\r':
+                case '\t':
+                    return true;
+            }
         }
     }
 }

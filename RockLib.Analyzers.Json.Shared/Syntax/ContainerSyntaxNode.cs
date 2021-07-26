@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace RockLib.Analyzers.Json
@@ -9,55 +7,65 @@ namespace RockLib.Analyzers.Json
     {
         private readonly IReadOnlyList<JsonSyntaxNode> _children;
 
-        protected ContainerSyntaxNode(IEnumerable<JsonSyntaxNode> children)
+        protected ContainerSyntaxNode(IReadOnlyList<JsonSyntaxNode> children)
         {
-            if (children is null)
-                throw new ArgumentNullException(nameof(children));
-
-            _children = new ReadOnlyCollection<JsonSyntaxNode>(children as IList<JsonSyntaxNode> ?? children.ToList());
+            if (children != null)
+                _children = new List<JsonSyntaxNode>(children);
         }
 
-        public virtual IReadOnlyList<JsonSyntaxNode> Children => _children;
+        public IReadOnlyList<JsonSyntaxNode> Children => _children;
 
-        public override bool HasTrivia => false;
+        public override bool HasLeadingTrivia =>
+            _children?.FirstOrDefault() is JsonSyntaxNode first
+            && (first.HasLeadingTrivia || first is TriviaListSyntax);
 
-        // TODO: Add WithChild method (and extension method?)
-        // Or maybe there needs to be an "expandable container" node that has the WithChild method?
+        public override bool HasTrailingTrivia =>
+            _children?.LastOrDefault() is JsonSyntaxNode last
+            && (last.HasTrailingTrivia || last is TriviaListSyntax);
 
-        public override IEnumerable<char> GetChars()
+        internal override IEnumerable<char> GetJsonDocumentChars()
         {
+            if (_children is null)
+                return Enumerable.Empty<char>();
+
             switch (_children.Count)
             {
                 case 0:
                     return Enumerable.Empty<char>();
                 case 1:
-                    return _children[0].GetChars();
+                    return _children[0].GetJsonDocumentChars();
                 default:
-                    var chars = _children[0].GetChars();
+                    var chars = _children[0].GetJsonDocumentChars();
                     for (int i = 1; i < _children.Count; i++)
-                        chars = chars.Concat(_children[i].GetChars());
+                        chars = chars.Concat(_children[i].GetJsonDocumentChars());
                     return chars;
             }
         }
 
         protected override JsonSyntaxNode WithLeadingTriviaCore(TriviaListSyntax triviaList)
         {
-            foreach (var child in Children)
+            if (_children != null)
             {
-                var replacementChild = child.WithLeadingTrivia(triviaList);
-                if (!ReferenceEquals(child, replacementChild))
-                    return this.ReplaceNode(child, replacementChild);
+                foreach (var child in _children)
+                {
+                    var replacementChild = child.WithLeadingTrivia(triviaList);
+                    if (!ReferenceEquals(child, replacementChild))
+                        return this.ReplaceNode(child, replacementChild);
+                }
             }
             return this;
         }
 
         protected override JsonSyntaxNode WithTrailingTriviaCore(TriviaListSyntax triviaList)
         {
-            foreach (var child in Children.Reverse())
+            if (_children != null)
             {
-                var replacementChild = child.WithTrailingTrivia(triviaList);
-                if (!ReferenceEquals(child, replacementChild))
-                    return this.ReplaceNode(child, replacementChild);
+                foreach (var child in Children.Reverse())
+                {
+                    var replacementChild = child.WithTrailingTrivia(triviaList);
+                    if (!ReferenceEquals(child, replacementChild))
+                        return this.ReplaceNode(child, replacementChild);
+                }
             }
             return this;
         }

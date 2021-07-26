@@ -5,37 +5,61 @@ namespace RockLib.Analyzers.Json
     public class ObjectSyntax : ExpandableContainerSyntaxNode
     {
         public ObjectSyntax(OpenBraceSyntax openBrace,
-            IReadOnlyList<MemberSyntax> members,
+            IReadOnlyList<ObjectMemberSyntax> members,
             CloseBraceSyntax closeBrace)
             : base(GetChildren(openBrace, members, closeBrace))
         {
             OpenBrace = openBrace;
-            Members = members;
+            Members = new List<ObjectMemberSyntax>(members);
             CloseBrace = closeBrace;
         }
 
         public OpenBraceSyntax OpenBrace { get; }
 
-        public IReadOnlyList<MemberSyntax> Members { get; }
+        public IReadOnlyList<ObjectMemberSyntax> Members { get; }
 
         public CloseBraceSyntax CloseBrace { get; }
+
+        public override bool IsValid
+        {
+            get
+            {
+                if (OpenBrace is null || OpenBrace is null)
+                    return false;
+
+                // All but the last member needs a comma
+                if (Members is null || Members.Count < 2)
+                    return true;
+
+                for (int i = 0; i < Members.Count - 1; i++)
+                    if (Members[i].Comma is null)
+                        return false;
+
+                return true;
+            }
+        }
+
+        public override bool IsValueNode => true;
 
         public ObjectSyntax WithOpenBrace(OpenBraceSyntax openBrace) =>
             new ObjectSyntax(openBrace, Members, CloseBrace);
 
-        public ObjectSyntax WithMembers(IReadOnlyList<MemberSyntax> items) =>
-            new ObjectSyntax(OpenBrace, items, CloseBrace);
+        public ObjectSyntax WithMembers(IReadOnlyList<ObjectMemberSyntax> members) =>
+            new ObjectSyntax(OpenBrace, members, CloseBrace);
 
         public ObjectSyntax WithCloseBrace(CloseBraceSyntax closeBrace) =>
             new ObjectSyntax(OpenBrace, Members, closeBrace);
 
         // TODO: Add InsertMember, RemoveMember
 
-        public ObjectSyntax AddMember(MemberSyntax member)
+        public ObjectSyntax AddMember(ObjectMemberSyntax member)
         {
-            var members = new MemberSyntax[Members.Count + 1];
+            if (Members is null)
+                return WithMembers(new[] { member });
 
-            if (Members.Count > 1 && Members[0].Name.LeadingTrivia != null)
+            var members = new ObjectMemberSyntax[Members.Count + 1];
+
+            if (Members.Count > 0 && Members[0].Name.LeadingTrivia != null)
                 member = member.WithLeadingTrivia(Members[0].Name.LeadingTrivia);
 
             for (int i = 0; i < Members.Count; i++)
@@ -43,7 +67,7 @@ namespace RockLib.Analyzers.Json
 
             members[Members.Count] = member;
 
-            if (members.Length > 1 && members[members.Length - 2].Comma == null)
+            if (members.Length > 1 && members[members.Length - 2].Comma is null)
                 members[members.Length - 2] = members[members.Length - 2].WithComma(new CommaSyntax());
 
             return WithMembers(members);
@@ -51,48 +75,62 @@ namespace RockLib.Analyzers.Json
 
         protected override ExpandableContainerSyntaxNode AddChildCore(JsonSyntaxNode child)
         {
-            return AddMember((MemberSyntax)child);
+            return AddMember((ObjectMemberSyntax)child);
         }
 
         protected override JsonSyntaxNode ReplaceCore(JsonSyntaxNode oldNode, JsonSyntaxNode newNode)
         {
-            for (int i = 0; i < Members.Count; i++)
+            if (Members != null)
             {
-                var replacementMember = Members[i].ReplaceNode(oldNode, newNode);
-                if (!ReferenceEquals(replacementMember, Members[i]))
+                for (int i = 0; i < Members.Count; i++)
                 {
-                    var replacementMembers = new MemberSyntax[Members.Count];
-                    for (int j = 0; j < replacementMembers.Length; j++)
+                    var replacementMember = Members[i].ReplaceNode(oldNode, newNode);
+                    if (!ReferenceEquals(replacementMember, Members[i]))
                     {
-                        if (j == i)
-                            replacementMembers[j] = replacementMember;
-                        else
-                            replacementMembers[j] = Members[j];
+                        var replacementMembers = new ObjectMemberSyntax[Members.Count];
+                        for (int j = 0; j < replacementMembers.Length; j++)
+                        {
+                            if (j == i)
+                                replacementMembers[j] = replacementMember;
+                            else
+                                replacementMembers[j] = Members[j];
+                        }
+                        return WithMembers(replacementMembers);
                     }
-                    return WithMembers(replacementMembers);
                 }
             }
 
-            var replacementOpenBrace = OpenBrace.ReplaceNode(oldNode, newNode);
-            if (!ReferenceEquals(replacementOpenBrace, OpenBrace))
-                return WithOpenBrace(replacementOpenBrace);
+            if (OpenBrace != null)
+            {
+                var replacementOpenBrace = OpenBrace.ReplaceNode(oldNode, newNode);
+                if (!ReferenceEquals(replacementOpenBrace, OpenBrace))
+                    return WithOpenBrace(replacementOpenBrace);
+            }
 
-            var replacementCloseBrace = CloseBrace.ReplaceNode(oldNode, newNode);
-            if (!ReferenceEquals(replacementCloseBrace, CloseBrace))
-                return WithCloseBrace(replacementCloseBrace);
+            if (CloseBrace != null)
+            {
+                var replacementCloseBrace = CloseBrace.ReplaceNode(oldNode, newNode);
+                if (!ReferenceEquals(replacementCloseBrace, CloseBrace))
+                    return WithCloseBrace(replacementCloseBrace);
+            }
 
             return this;
         }
 
-        private static IEnumerable<JsonSyntaxNode> GetChildren(
+        private static IReadOnlyList<JsonSyntaxNode> GetChildren(
             OpenBraceSyntax openBrace,
-            IEnumerable<MemberSyntax> members,
+            IEnumerable<ObjectMemberSyntax> members,
             CloseBraceSyntax closeBrace)
         {
-            yield return openBrace;
-            foreach (var member in members)
-                yield return member;
-            yield return closeBrace;
+            var list = new List<JsonSyntaxNode>();
+            if (openBrace != null)
+                list.Add(openBrace);
+            if (members != null)
+                foreach (var member in members)
+                    list.Add(member);
+            if (closeBrace != null)
+                list.Add(closeBrace);
+            return list;
         }
     }
 }

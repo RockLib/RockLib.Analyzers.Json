@@ -24,7 +24,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Syntax\ColonSyntax.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Syntax\CommaSyntax.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)JsonExtensions.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Syntax\MemberSyntax.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Syntax\ObjectMemberSyntax.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Syntax\ObjectSyntax.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Syntax\EscapedStringSyntax.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Syntax\TriviaListSyntax.cs" />

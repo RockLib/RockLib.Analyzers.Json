@@ -11,6 +11,10 @@ namespace RockLib.Analyzers.Json
         {
         }
 
+        public override bool IsValid => RawValue is null || RawValue.All(char.IsWhiteSpace);
+
+        public override bool IsValueNode => false;
+
         public SingleLineCommentTriviaSyntax WithWhitespace(string whitespace)
         {
             if (!whitespace.All(char.IsWhiteSpace))

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 
 namespace RockLib.Analyzers.Json
 {
@@ -14,11 +12,13 @@ namespace RockLib.Analyzers.Json
         }
 
         public FalseSyntax(IEnumerable<char> falseToken, TriviaListSyntax leadingTrivia, TriviaListSyntax trailingTrivia)
-            : base(_false, leadingTrivia, trailingTrivia)
+            : base(falseToken, leadingTrivia, trailingTrivia)
         {
-            if (!falseToken.EqualsSlice(_false))
-                throw new Exception("Invalid value: " + new string(falseToken.ToArray()));
         }
+
+        public override bool IsValid => RawValue != null && RawValue.EqualsSlice(_false);
+
+        public override bool IsValueNode => true;
 
         public FalseSyntax WithTriviaFrom(VerbatimSyntaxNode node) =>
             new FalseSyntax(RawValue, node.LeadingTrivia, node.TrailingTrivia);

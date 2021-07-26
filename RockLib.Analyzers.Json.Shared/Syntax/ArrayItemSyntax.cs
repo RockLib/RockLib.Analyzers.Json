@@ -20,6 +20,12 @@ namespace RockLib.Analyzers.Json
 
         public CommaSyntax Comma { get; }
 
+        public override bool IsValid =>
+            Value != null
+            && Value.IsValueNode;
+
+        public override bool IsValueNode => false;
+
         public ArrayItemSyntax WithValue(JsonSyntaxNode value) =>
             new ArrayItemSyntax(value, Comma);
 
@@ -31,9 +37,12 @@ namespace RockLib.Analyzers.Json
 
         protected override JsonSyntaxNode ReplaceCore(JsonSyntaxNode oldNode, JsonSyntaxNode newNode)
         {
-            var replacementValue = Value.ReplaceNode(oldNode, newNode);
-            if (!ReferenceEquals(replacementValue, Value))
-                return WithValue(replacementValue);
+            if (Value != null)
+            {
+                var replacementValue = Value.ReplaceNode(oldNode, newNode);
+                if (!ReferenceEquals(replacementValue, Value))
+                    return WithValue(replacementValue);
+            }
 
             if (Comma != null)
             {
@@ -45,11 +54,14 @@ namespace RockLib.Analyzers.Json
             return this;
         }
 
-        private static IEnumerable<JsonSyntaxNode> GetChildren(JsonSyntaxNode value, CommaSyntax comma)
+        private static IReadOnlyList<JsonSyntaxNode> GetChildren(JsonSyntaxNode value, CommaSyntax comma)
         {
-            yield return value;
+            var list = new List<JsonSyntaxNode>();
+            if (value != null)
+                list.Add(value);
             if (comma != null)
-                yield return comma;
+                list.Add(comma);
+            return list;
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace RockLib.Analyzers.Json
 {
@@ -11,10 +10,31 @@ namespace RockLib.Analyzers.Json
             TriviaListSyntax trailingTrivia)
             : base(rawValue, leadingTrivia, trailingTrivia)
         {
-            if (!rawValue.EndsWith('"'))
-                throw new Exception("Invalid value: " + new string(rawValue.ToArray()));
+            if (rawValue is null)
+                throw new ArgumentNullException(nameof(rawValue));
         }
 
         public abstract string Value { get; }
+
+        public override bool IsValid
+        {
+            get
+            {
+                if (RawValue is null)
+                    return false;
+
+                try
+                {
+                    _ = Value;
+                    return true;
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+        }
+
+        public override bool IsValueNode => true;
     }
 }

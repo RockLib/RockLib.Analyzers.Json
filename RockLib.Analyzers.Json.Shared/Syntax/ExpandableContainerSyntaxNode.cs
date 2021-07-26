@@ -4,7 +4,7 @@ namespace RockLib.Analyzers.Json
 {
     public abstract class ExpandableContainerSyntaxNode : ContainerSyntaxNode, IExpandableContainerSyntaxNode
     {
-        protected ExpandableContainerSyntaxNode(IEnumerable<JsonSyntaxNode> children)
+        protected ExpandableContainerSyntaxNode(IReadOnlyList<JsonSyntaxNode> children)
             : base(children)
         {
         }

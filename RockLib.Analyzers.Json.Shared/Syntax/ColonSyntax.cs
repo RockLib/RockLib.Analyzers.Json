@@ -16,6 +16,10 @@ namespace RockLib.Analyzers.Json
         {
         }
 
+        public override bool IsValid => true;
+
+        public override bool IsValueNode => false;
+
         public ColonSyntax WithTriviaFrom(VerbatimSyntaxNode node) =>
             new ColonSyntax(node.LeadingTrivia, node.TrailingTrivia);
 

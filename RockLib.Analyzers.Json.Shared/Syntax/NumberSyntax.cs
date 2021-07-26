@@ -28,6 +28,28 @@ namespace RockLib.Analyzers.Json
 
         public bool HasExponentPart => _rawValue.Value.Contains("e") || _rawValue.Value.Contains("E");
 
+        public override bool IsValid
+        {
+            get
+            {
+                if (_rawValue.Value is null)
+                    return false;
+
+                try
+                {
+                    // TODO: Is there a better way to check if a number string is valid?
+                    GetDouble();
+                    return true;
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+        }
+
+        public override bool IsValueNode => true;
+
         public int GetInt32() => int.Parse(_rawValue.Value);
 
         public long GetInt64() => long.Parse(_rawValue.Value);

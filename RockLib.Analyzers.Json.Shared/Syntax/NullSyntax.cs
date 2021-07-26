@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 
 namespace RockLib.Analyzers.Json
 {
@@ -14,11 +12,13 @@ namespace RockLib.Analyzers.Json
         }
 
         public NullSyntax(IEnumerable<char> nullToken, TriviaListSyntax leadingTrivia, TriviaListSyntax trailingTrivia)
-            : base(_null, leadingTrivia, trailingTrivia)
+            : base(nullToken, leadingTrivia, trailingTrivia)
         {
-            if (!nullToken.EqualsSlice(_null))
-                throw new Exception("Invalid value: " + new string(nullToken.ToArray()));
         }
+
+        public override bool IsValid => RawValue != null && RawValue.EqualsSlice(_null);
+
+        public override bool IsValueNode => true;
 
         public NullSyntax WithTriviaFrom(VerbatimSyntaxNode node) =>
             new NullSyntax(RawValue, node.LeadingTrivia, node.TrailingTrivia);

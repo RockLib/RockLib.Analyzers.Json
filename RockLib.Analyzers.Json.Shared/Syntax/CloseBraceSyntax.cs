@@ -16,6 +16,10 @@ namespace RockLib.Analyzers.Json
         {
         }
 
+        public override bool IsValid => true;
+
+        public override bool IsValueNode => false;
+
         public CloseBraceSyntax WithTriviaFrom(VerbatimSyntaxNode node) =>
             new CloseBraceSyntax(node.LeadingTrivia, node.TrailingTrivia);
 

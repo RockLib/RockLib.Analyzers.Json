@@ -141,7 +141,7 @@ namespace RockLib.Analyzers.Json
 
             while (true)
             {
-                if (_currentIndex + 1 >= _buffer.Length)
+                if (_currentIndex >= _buffer.Length)
                     return;
 
                 switch (_buffer[_currentIndex])
@@ -150,11 +150,13 @@ namespace RockLib.Analyzers.Json
                         _currentIndex++;
                         _length++;
                         break;
+                    case '\r':
+                    case '\n':
+                        return;
                     case '"':
                         _length++;
                         return;
                     case '\\':
-                        _tokenType = JsonTokenType.EscapedString;
                         _currentIndex++;
                         _length++;
 
@@ -168,6 +170,8 @@ namespace RockLib.Analyzers.Json
                             case 'n':
                             case 'r':
                             case 't':
+                                _tokenType = JsonTokenType.EscapedString;
+
                                 if (_currentIndex + 1 >= _buffer.Length)
                                     return;
 
@@ -175,18 +179,23 @@ namespace RockLib.Analyzers.Json
                                 _length++;
                                 break;
                             case 'u':
+                                _tokenType = JsonTokenType.EscapedString;
+
                                 _currentIndex++;
                                 _length++;
 
                                 for (int i = 0; i < 4; i++)
                                 {
-                                    if (_currentIndex + 1 >= _buffer.Length)
+                                    if (_currentIndex >= _buffer.Length)
                                         return;
 
                                     switch (_buffer[_currentIndex])
                                     {
                                         default:
-                                            throw new Exception("Parse error. Expected hex digit.");
+                                            goto BreakFor;
+                                        case '"':
+                                            _length++;
+                                            return;
                                         case '0':
                                         case '1':
                                         case '2':
@@ -214,6 +223,7 @@ namespace RockLib.Analyzers.Json
                                             break;
                                     }
                                 }
+                                BreakFor:
                                 break;
                         }
                         break;
@@ -229,31 +239,62 @@ namespace RockLib.Analyzers.Json
 
             if (_buffer[_currentIndex] == '-')
             {
-                _currentIndex++;
                 _length++;
+
+                if (_currentIndex + 1 >= _buffer.Length)
+                    return;
+                if (char.IsDigit(_buffer[_currentIndex + 1]))
+                    _currentIndex++;
+                else
+                    return;
             }
 
             ReadDigits();
 
-            if (_buffer[_currentIndex] == '.')
+            if (_currentIndex + 1 >= _buffer.Length)
+                return;
+
+            if (_buffer[_currentIndex + 1] == '.')
             {
-                _currentIndex++;
                 _length++;
+                _currentIndex++;
+
+                if (_currentIndex + 1 >= _buffer.Length)
+                    return;
+                if (char.IsDigit(_buffer[_currentIndex + 1]))
+                    _currentIndex++;
+                else
+                    return;
+
                 ReadDigits();
             }
 
-            var current = _buffer[_currentIndex];
-            if (current == 'e' || current == 'E')
-            {
-                _currentIndex++;
-                _length++;
+            if (_currentIndex + 1 >= _buffer.Length)
+                return;
 
-                current = _buffer[_currentIndex];
-                if (current == '-' || current == '+')
+            if (_buffer[_currentIndex + 1] == 'e'
+                || _buffer[_currentIndex + 1] == 'E')
+            {
+                _length++;
+                _currentIndex++;
+
+                if (_currentIndex + 1 >= _buffer.Length)
+                    return;
+                
+                if (_buffer[_currentIndex + 1] == '-'
+                    || _buffer[_currentIndex + 1] == '+')
                 {
                     _currentIndex++;
                     _length++;
                 }
+
+                if (_currentIndex + 1 >= _buffer.Length)
+                    return;
+                if (char.IsDigit(_buffer[_currentIndex + 1]))
+                    _currentIndex++;
+                else
+                    return;
+
                 ReadDigits();
             }
         }
@@ -262,14 +303,12 @@ namespace RockLib.Analyzers.Json
         {
             while (true)
             {
+                _length++;
+
                 if (_currentIndex + 1 >= _buffer.Length)
                     return;
-
-                if (char.IsDigit(_buffer[_currentIndex]))
-                {
+                if (char.IsDigit(_buffer[_currentIndex + 1]))
                     _currentIndex++;
-                    _length++;
-                }
                 else
                     return;
             }
@@ -281,17 +320,16 @@ namespace RockLib.Analyzers.Json
             _start = _currentIndex;
             _length = 0;
 
-            for (int i = 0; i < literalValue.Length; i++)
+            for (int i = 1; true; i++)
             {
-                if (_buffer[_currentIndex] != literalValue[i])
-                    return;
-
                 _length++;
 
-                if (_length == literalValue.Length || _currentIndex + 1 >= _buffer.Length)
-                    return;
-
-                _currentIndex++;
+                if (_length == literalValue.Length
+                    || _currentIndex + 1 >= _buffer.Length
+                    || _buffer[_currentIndex + 1] != literalValue[i])
+                    break;
+                else
+                    _currentIndex++;
             }
         }
 
@@ -389,47 +427,5 @@ namespace RockLib.Analyzers.Json
                 }
             }
         }
-
-        //public string UnescapeStringValue()
-        //{
-        //    var sb = new StringBuilder(); // TODO: Use object pool
-
-        //    for (int i = _start; i < _start + _length; i++)
-        //    {
-        //        if (_buffer[i] != '\\')
-        //            sb.Append(_buffer[i]);
-        //        else
-        //        {
-        //            switch (_buffer[i + 1])
-        //            {
-        //                case '"':
-        //                case '\\':
-        //                case '/':
-        //                    sb.Append(_buffer[i + 1]);
-        //                    break;
-        //                case 'b':
-        //                    sb.Append('\b');
-        //                    break;
-        //                case 'f':
-        //                    sb.Append('\f');
-        //                    break;
-        //                case 'n':
-        //                    sb.Append('\n');
-        //                    break;
-        //                case 'r':
-        //                    sb.Append('\r');
-        //                    break;
-        //                case 't':
-        //                    sb.Append('\t');
-        //                    break;
-        //                case 'u':
-        //                    sb.Append(char.Parse(new string(_buffer.Slice(i, 6).ToArray())));
-        //                    break;
-        //            }
-        //        }
-        //    }
-
-        //    return sb.ToString();
-        //}
     }
 }

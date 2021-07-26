@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace RockLib.Analyzers.Json
 {
@@ -9,11 +10,13 @@ namespace RockLib.Analyzers.Json
             RawValue = rawValue;
         }
 
-        public override bool HasTrivia => false;
+        public override bool HasLeadingTrivia => false;
+        
+        public override bool HasTrailingTrivia => false;
 
         public IEnumerable<char> RawValue { get; }
 
-        public override IEnumerable<char> GetChars() => RawValue;
+        internal override IEnumerable<char> GetJsonDocumentChars() => RawValue ?? Enumerable.Empty<char>();
 
         protected override JsonSyntaxNode ReplaceCore(JsonSyntaxNode oldNode, JsonSyntaxNode newNode) => this;
 

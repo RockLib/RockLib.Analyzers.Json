@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace RockLib.Analyzers.Json
 {
@@ -7,13 +8,21 @@ namespace RockLib.Analyzers.Json
         public TriviaListSyntax(IReadOnlyList<TriviaSyntaxNode> items)
             : base(items)
         {
-            Items = items;
+            if (items != null)
+                Items = new List<TriviaSyntaxNode>(items);
         }
 
         public IReadOnlyList<TriviaSyntaxNode> Items { get; }
 
+        public override bool IsValid => true;
+
+        public override bool IsValueNode => false;
+
         protected override JsonSyntaxNode ReplaceCore(JsonSyntaxNode oldNode, JsonSyntaxNode newNode)
         {
+            if (Items is null)
+                return this;
+
             for (int i = 0; i < Items.Count; i++)
             {
                 var replacementItem = Items[i].ReplaceNode(oldNode, newNode);
@@ -34,10 +43,28 @@ namespace RockLib.Analyzers.Json
             return this;
         }
 
-        public static implicit operator TriviaListSyntax(TriviaSyntaxNode triviaSyntax) => new TriviaListSyntax(new[] { triviaSyntax });
+        public static implicit operator TriviaListSyntax(TriviaSyntaxNode triviaSyntax)
+        {
+            if (triviaSyntax is null)
+                throw new ArgumentNullException(nameof(triviaSyntax));
 
-        public static implicit operator TriviaListSyntax(TriviaSyntaxNode[] triviaSyntax) => new TriviaListSyntax(triviaSyntax);
+            return new TriviaListSyntax(new[] { triviaSyntax });
+        }
 
-        public static implicit operator TriviaListSyntax(List<TriviaSyntaxNode> triviaSyntax) => new TriviaListSyntax(triviaSyntax);
+        public static implicit operator TriviaListSyntax(TriviaSyntaxNode[] triviaSyntaxArray)
+        {
+            if (triviaSyntaxArray is null)
+                throw new ArgumentNullException(nameof(triviaSyntaxArray));
+
+            return new TriviaListSyntax(triviaSyntaxArray);
+        }
+
+        public static implicit operator TriviaListSyntax(List<TriviaSyntaxNode> triviaSyntaxList)
+        {
+            if (triviaSyntaxList is null)
+                throw new ArgumentNullException(nameof(triviaSyntaxList));
+
+            return new TriviaListSyntax(triviaSyntaxList);
+        }
     }
 }

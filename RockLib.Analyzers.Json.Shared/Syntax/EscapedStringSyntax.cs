@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 
 namespace RockLib.Analyzers.Json
@@ -70,8 +71,13 @@ namespace RockLib.Analyzers.Json
             var sb = new StringBuilder(); // TODO: Use object pool
             var enumerator = value.GetEnumerator();
 
-            // Skip the opening double quote
+            // Skip the opening quote
             enumerator.MoveNext();
+
+            if (enumerator.Current != '"')
+                throw new Exception("Missing open quote.");
+
+            var closeQuoteFound = false;
 
             while (enumerator.MoveNext())
             {
@@ -81,6 +87,7 @@ namespace RockLib.Analyzers.Json
 
                     switch (enumerator.Current)
                     {
+                        default:
                         case '"':
                         case '\\':
                         case '/':
@@ -103,26 +110,76 @@ namespace RockLib.Analyzers.Json
                             break;
                         case 'u':
                             var c = new StringBuilder(); // TODO: Use object pool
-                            c.Append("\\u");
+
                             enumerator.MoveNext();
+                            if (!IsHexDigit(enumerator.Current))
+                                throw new Exception("Invalid hex digit: " + enumerator.Current);
                             c.Append(enumerator.Current);
+
                             enumerator.MoveNext();
+                            if (!IsHexDigit(enumerator.Current))
+                                throw new Exception("Invalid hex digit: " + enumerator.Current);
                             c.Append(enumerator.Current);
+
                             enumerator.MoveNext();
+                            if (!IsHexDigit(enumerator.Current))
+                                throw new Exception("Invalid hex digit: " + enumerator.Current);
                             c.Append(enumerator.Current);
+
                             enumerator.MoveNext();
+                            if (!IsHexDigit(enumerator.Current))
+                                throw new Exception("Invalid hex digit: " + enumerator.Current);
                             c.Append(enumerator.Current);
-                            sb.Append(char.Parse(c.ToString()));
+
+                            sb.Append((char)int.Parse(c.ToString(), NumberStyles.HexNumber));
                             break;
                     }
                 }
                 else if (enumerator.Current == '"')
+                {
+                    closeQuoteFound = true;
                     break;
+                }
                 else
                     sb.Append(enumerator.Current);
             }
 
+            if (!closeQuoteFound)
+                throw new Exception("Missing close quote.");
+
             return sb.ToString();
+        }
+
+        private static bool IsHexDigit(char c)
+        {
+            switch (c)
+            {
+                case '0':
+                case '1':
+                case '2':
+                case '3':
+                case '4':
+                case '5':
+                case '6':
+                case '7':
+                case '8':
+                case '9':
+                case 'a':
+                case 'b':
+                case 'c':
+                case 'd':
+                case 'e':
+                case 'f':
+                case 'A':
+                case 'B':
+                case 'C':
+                case 'D':
+                case 'E':
+                case 'F':
+                    return true;
+                default:
+                    return false;
+            }
         }
 
         private static string Escape(string value)

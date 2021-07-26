@@ -28,49 +28,49 @@ namespace RockLib.Analyzers.Json
                     case JsonTokenType.ArrayStart:
                         ArraySyntax arraySyntax = ParseArray(reader, localTrivia);
 
-                        if (rootNode == null)
+                        if (rootNode is null)
                             rootNode = arraySyntax;
                         break;
                     case JsonTokenType.ObjectStart:
                         ObjectSyntax objectSyntax = ParseObject(reader, localTrivia);
 
-                        if (rootNode == null)
+                        if (rootNode is null)
                             rootNode = objectSyntax;
                         break;
                     case JsonTokenType.NonEscapedString:
                         var nonEscapedString = ParseNonEscapedStringSyntax(reader, localTrivia);
 
-                        if (rootNode == null)
+                        if (rootNode is null)
                             rootNode = nonEscapedString;
                         break;
                     case JsonTokenType.EscapedString:
                         var escapedString = ParseEscapedStringSyntax(reader, localTrivia);
 
-                        if (rootNode == null)
+                        if (rootNode is null)
                             rootNode = escapedString;
                         break;
                     case JsonTokenType.Number:
                         var number = ParseNumberSyntax(reader, localTrivia);
 
-                        if (rootNode == null)
+                        if (rootNode is null)
                             rootNode = number;
                         break;
                     case JsonTokenType.True:
                         var trueSyntax = ParseTrueSyntax(reader, localTrivia);
 
-                        if (rootNode == null)
+                        if (rootNode is null)
                             rootNode = trueSyntax;
                         break;
                     case JsonTokenType.False:
                         var falseSyntax = ParseFalseSyntax(reader, localTrivia);
 
-                        if (rootNode == null)
+                        if (rootNode is null)
                             rootNode = falseSyntax;
                         break;
                     case JsonTokenType.Null:
                         var nullSyntax = ParseNullSyntax(reader, localTrivia);
 
-                        if (rootNode == null)
+                        if (rootNode is null)
                             rootNode = nullSyntax;
                         break;
                 }
@@ -185,7 +185,7 @@ namespace RockLib.Analyzers.Json
                         localTrivia.Add(new MultiLineCommentTriviaSyntax(reader.Current));
                         break;
                     case JsonTokenType.ItemSeparator:
-                        if (currentItem == null)
+                        if (currentItem is null)
                             throw new Exception("Parse error. Expected array item, but was comma.");
 
                         items.Add(new ArrayItemSyntax(currentItem, GetComma(localTrivia)));
@@ -254,7 +254,7 @@ namespace RockLib.Analyzers.Json
         {
             var openBrace = GetOpenBrace(localTrivia);
 
-            var members = new List<MemberSyntax>();
+            var members = new List<ObjectMemberSyntax>();
 
             StringSyntax memberNameSyntax = null;
             ColonSyntax colonSyntax = null;
@@ -282,14 +282,14 @@ namespace RockLib.Analyzers.Json
                         localTrivia.Add(new MultiLineCommentTriviaSyntax(reader.Current));
                         break;
                     case JsonTokenType.ItemSeparator:
-                        if (memberNameSyntax == null)
+                        if (memberNameSyntax is null)
                             throw new Exception("Parse error. Expected member name, but was comma.");
-                        else if (colonSyntax == null)
+                        else if (colonSyntax is null)
                             throw new Exception("Parse error. Expected colon, but was comma.");
-                        else if (memberValueSyntax == null)
+                        else if (memberValueSyntax is null)
                             throw new Exception("Parse error. Expected member value, but was comma.");
 
-                        members.Add(new MemberSyntax(memberNameSyntax, colonSyntax, memberValueSyntax, GetComma(localTrivia)));
+                        members.Add(new ObjectMemberSyntax(memberNameSyntax, colonSyntax, memberValueSyntax, GetComma(localTrivia)));
                         memberNameSyntax = null;
                         colonSyntax = null;
                         memberValueSyntax = null;
@@ -297,100 +297,100 @@ namespace RockLib.Analyzers.Json
                     case JsonTokenType.ObjectEnd:
                         if (memberNameSyntax != null)
                         {
-                            if (colonSyntax == null)
+                            if (colonSyntax is null)
                                 throw new Exception("Parse error. Expected colon, but was close brace.");
-                            else if (memberValueSyntax == null)
+                            else if (memberValueSyntax is null)
                                 throw new Exception("Parse error. Expected member value, but was close brace.");
                             else
-                                members.Add(new MemberSyntax(memberNameSyntax, colonSyntax, memberValueSyntax));
+                                members.Add(new ObjectMemberSyntax(memberNameSyntax, colonSyntax, memberValueSyntax));
                         }
 
                         return new ObjectSyntax(openBrace, members, GetCloseBrace(localTrivia));
                     case JsonTokenType.NonEscapedString:
-                        if (memberNameSyntax == null)
+                        if (memberNameSyntax is null)
                             memberNameSyntax = ParseNonEscapedStringSyntax(reader, localTrivia);
-                        else if (colonSyntax == null)
+                        else if (colonSyntax is null)
                             throw new Exception("Parse error. Expected colon, but was escaped string.");
-                        else if (memberValueSyntax == null)
+                        else if (memberValueSyntax is null)
                             memberValueSyntax = ParseNonEscapedStringSyntax(reader, localTrivia);
                         else
                             throw new Exception("Parse error. Expected comma, but was escaped string.");
                         break;
                     case JsonTokenType.EscapedString:
-                        if (memberNameSyntax == null)
+                        if (memberNameSyntax is null)
                             memberNameSyntax = ParseEscapedStringSyntax(reader, localTrivia);
-                        else if (colonSyntax == null)
+                        else if (colonSyntax is null)
                             throw new Exception("Parse error. Expected colon, but was non-escaped string.");
-                        else if (memberValueSyntax == null)
+                        else if (memberValueSyntax is null)
                             memberValueSyntax = ParseEscapedStringSyntax(reader, localTrivia);
                         else throw new Exception("Parse error. Expected comma, but was non-escaped string.");
                         break;
                     case JsonTokenType.MemberSeparator:
-                        if (memberNameSyntax == null)
+                        if (memberNameSyntax is null)
                             throw new Exception("Parse error. Expected member name, but was colon.");
-                        else if (colonSyntax == null)
+                        else if (colonSyntax is null)
                             colonSyntax = GetColon(localTrivia);
-                        else if (memberValueSyntax == null)
+                        else if (memberValueSyntax is null)
                             throw new Exception("Parse error. Expected member value, but was colon.");
                         else
                             throw new Exception("Parse error. Expected comma, but was colon.");
                         break;
                     case JsonTokenType.ArrayStart:
-                        if (memberNameSyntax == null)
+                        if (memberNameSyntax is null)
                             throw new Exception("Parse error. Expected member name, but was open bracket.");
-                        else if (colonSyntax == null)
+                        else if (colonSyntax is null)
                             throw new Exception("Parse error. Expected colon, but was open bracket.");
-                        else if (memberValueSyntax == null)
+                        else if (memberValueSyntax is null)
                             memberValueSyntax = ParseArray(reader, localTrivia);
                         else
                             throw new Exception("Parse error. Expected comma, but was open bracket.");
                         break;
                     case JsonTokenType.ObjectStart:
-                        if (memberNameSyntax == null)
+                        if (memberNameSyntax is null)
                             throw new Exception("Parse error. Expected member name, but was open bracket.");
-                        else if (colonSyntax == null)
+                        else if (colonSyntax is null)
                             throw new Exception("Parse error. Expected colon, but was open bracket.");
-                        else if (memberValueSyntax == null)
+                        else if (memberValueSyntax is null)
                             memberValueSyntax = ParseObject(reader, localTrivia);
                         else
                             throw new Exception("Parse error. Expected comma, but was open bracket.");
                         break;
                     case JsonTokenType.Number:
-                        if (memberNameSyntax == null)
+                        if (memberNameSyntax is null)
                             throw new Exception("Parse error. Expected member name, but was open bracket.");
-                        else if (colonSyntax == null)
+                        else if (colonSyntax is null)
                             throw new Exception("Parse error. Expected colon, but was open bracket.");
-                        else if (memberValueSyntax == null)
+                        else if (memberValueSyntax is null)
                             memberValueSyntax = ParseNumberSyntax(reader, localTrivia);
                         else
                             throw new Exception("Parse error. Expected comma, but was open bracket.");
                         break;
                     case JsonTokenType.True:
-                        if (memberNameSyntax == null)
+                        if (memberNameSyntax is null)
                             throw new Exception("Parse error. Expected member name, but was open bracket.");
-                        else if (colonSyntax == null)
+                        else if (colonSyntax is null)
                             throw new Exception("Parse error. Expected colon, but was open bracket.");
-                        else if (memberValueSyntax == null)
+                        else if (memberValueSyntax is null)
                             memberValueSyntax = ParseTrueSyntax(reader, localTrivia);
                         else
                             throw new Exception("Parse error. Expected comma, but was open bracket.");
                         break;
                     case JsonTokenType.False:
-                        if (memberNameSyntax == null)
+                        if (memberNameSyntax is null)
                             throw new Exception("Parse error. Expected member name, but was open bracket.");
-                        else if (colonSyntax == null)
+                        else if (colonSyntax is null)
                             throw new Exception("Parse error. Expected colon, but was open bracket.");
-                        else if (memberValueSyntax == null)
+                        else if (memberValueSyntax is null)
                             memberValueSyntax = ParseFalseSyntax(reader, localTrivia);
                         else
                             throw new Exception("Parse error. Expected comma, but was open bracket.");
                         break;
                     case JsonTokenType.Null:
-                        if (memberNameSyntax == null)
+                        if (memberNameSyntax is null)
                             throw new Exception("Parse error. Expected member name, but was open bracket.");
-                        else if (colonSyntax == null)
+                        else if (colonSyntax is null)
                             throw new Exception("Parse error. Expected colon, but was open bracket.");
-                        else if (memberValueSyntax == null)
+                        else if (memberValueSyntax is null)
                             memberValueSyntax = ParseNullSyntax(reader, localTrivia);
                         else
                             throw new Exception("Parse error. Expected comma, but was open bracket.");

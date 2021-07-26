@@ -16,6 +16,10 @@ namespace RockLib.Analyzers.Json
         {
         }
 
+        public override bool IsValid => true;
+
+        public override bool IsValueNode => false;
+
         public CommaSyntax WithTriviaFrom(VerbatimSyntaxNode node) =>
             new CommaSyntax(node.LeadingTrivia, node.TrailingTrivia);
 

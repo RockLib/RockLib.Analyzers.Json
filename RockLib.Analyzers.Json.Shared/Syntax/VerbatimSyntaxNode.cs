@@ -16,26 +16,39 @@ namespace RockLib.Analyzers.Json
 
         public IEnumerable<char> RawValue { get; }
 
-        public string RawValueString => new string(RawValue.ToArray());
+        public string RawValueString => RawValue is null ? null : new string(RawValue.ToArray());
 
         public TriviaListSyntax LeadingTrivia { get; }
 
         public TriviaListSyntax TrailingTrivia { get; }
 
-        public override bool HasTrivia => (LeadingTrivia != null && LeadingTrivia.Children.Count > 0)
-            || (TrailingTrivia != null && TrailingTrivia.Children.Count > 0);
+        public override bool HasLeadingTrivia => LeadingTrivia != null && LeadingTrivia.Items.Count > 0;
 
-        public override IEnumerable<char> GetChars()
+        public override bool HasTrailingTrivia => TrailingTrivia != null && TrailingTrivia.Items.Count > 0;
+
+        internal override IEnumerable<char> GetJsonDocumentChars()
         {
             var chars = RawValue;
 
             if (LeadingTrivia != null)
-                chars = LeadingTrivia.GetChars().Concat(chars);
+            {
+                var triviaChars = LeadingTrivia.GetJsonDocumentChars();
+                if (chars is null)
+                    chars = triviaChars;
+                else if (!ReferenceEquals(triviaChars, Enumerable.Empty<char>()))
+                    chars = triviaChars.Concat(chars);
+            }
 
             if (TrailingTrivia != null)
-                chars = chars.Concat(TrailingTrivia.GetChars());
+            {
+                var triviaChars = TrailingTrivia.GetJsonDocumentChars();
+                if (chars is null)
+                    chars = triviaChars;
+                else if (!ReferenceEquals(triviaChars, Enumerable.Empty<char>()))
+                    chars = chars.Concat(triviaChars);
+            }
 
-            return chars;
+            return chars ?? Enumerable.Empty<char>();
         }
     }
 }
